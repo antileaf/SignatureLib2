@@ -1,0 +1,11 @@
+{
+  "id": "SignatureLib",
+  "name": "SignatureLib",
+  "author": "antileaf",
+  "description": "A Mod to support adding cool Signatures to your cards",
+  "version": "v0.0.1",
+  "has_pck": true,
+  "has_dll": true,
+  "dependencies": ["BaseLib"],
+  "affects_gameplay": false
+}

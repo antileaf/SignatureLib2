@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqtil5jlokblh"]
+
+[sub_resource type="FontVariation" id="FontVariation_2eadq"]
+spacing_glyph = 1
+
+[node name="SignatureLabel" type="Label"]
+offset_top = -25.0
+offset_right = 210.0
+offset_bottom = 29.0
+theme_override_colors/font_color = Color(0.9372549, 0.78431374, 0.31764707, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.5019608)
+theme_override_constants/outline_size = 12
+theme_override_fonts/font = SubResource("FontVariation_2eadq")
+theme_override_font_sizes/font_size = 32
+text = "Null Sign"
+vertical_alignment = 1
