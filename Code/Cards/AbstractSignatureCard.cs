@@ -20,10 +20,11 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 		CustomCardModel(cost, type, rarity, target), INCardModify {
 	private static Logger Logger { get; } = new(nameof(AbstractSignatureCard), LogType.Generic);
 
-	private const float Size = 512;
+	private const float HalfCardSize = 512;
 
 	public virtual string SignaturePortraitPath =>
-		this.PortraitPath.Replace("/cards/", "/signature/");
+		this.PortraitPath.Replace("/cards/", "/signature/")
+			.Replace("\\cards\\", "\\signature\\");
 
 	public Texture2D? SignaturePortrait => PreloadManager.Cache.GetTexture2D(this.SignaturePortraitPath);
 	public Texture2D SignatureTextBg => PreloadManager.Cache.GetTexture2D("desc_shadow.png".CardItemPath());
@@ -118,8 +119,8 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 		Traverse traverse = Traverse.Create(card);
 
 		this._signatureControl = new Control();
-		this._signatureControl.Size = new Vector2(Size, Size);
-		this._signatureControl.Position = new Vector2(-Size / 2, -Size / 2);
+		this._signatureControl.Size = new Vector2(HalfCardSize, HalfCardSize);
+		this._signatureControl.Position = new Vector2(-HalfCardSize / 2, -HalfCardSize / 2);
 		this._signatureControl.MouseFilter = Control.MouseFilterEnum.Ignore;
 
 		Control cardContainer = traverse.Property("Body").GetValue<Control>();
@@ -129,14 +130,14 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 
 		if (this.HasSignature) {
 			this._signatureTextureRect = new TextureRect();
-			this._signatureTextureRect.Size = new Vector2(Size, Size);
+			this._signatureTextureRect.Size = new Vector2(HalfCardSize, HalfCardSize);
 			this._signatureTextureRect.ExpandMode = TextureRect.ExpandModeEnum.FitHeight;
 			this._signatureTextureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 			this._signatureTextureRect.Texture = this.SignaturePortrait;
 			this._signatureTextureRect.MouseFilter = Control.MouseFilterEnum.Ignore;
 
 			this._textShadow = new TextureRect();
-			this._textShadow.Size = new Vector2(Size, Size);
+			this._textShadow.Size = new Vector2(HalfCardSize, HalfCardSize);
 			this._textShadow.ExpandMode = TextureRect.ExpandModeEnum.FitHeight;
 			this._textShadow.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 			this._textShadow.Texture = this.SignatureTextBg;
