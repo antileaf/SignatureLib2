@@ -14,6 +14,6 @@ public static class GodotExtensions {
 		if (NGame.IsMainThread())
 			node.Reparent(newParent);
 		else
-			node.CallDeferred(Godot.Node.MethodName.Reparent,newParent);
+			node.CallDeferred(Godot.Node.MethodName.Reparent, newParent);
 	}
 }

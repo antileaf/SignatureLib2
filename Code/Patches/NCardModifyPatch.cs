@@ -43,6 +43,7 @@ public class NCardModifyPatch {
 			return true;
 		}
 	}
+
 	// [HarmonyPatch(typeof(NInspectCardScreen),"SetCard")]
 	// public static class SetCardPatch
 	// {
@@ -64,7 +65,8 @@ public class NCardModifyPatch {
 	//	 }
 	//
 	// }
-	[HarmonyPatch(typeof(NCard),nameof(NCard.Model), MethodType.Setter)]
+
+	[HarmonyPatch(typeof(NCard), nameof(NCard.Model), MethodType.Setter)]
 	public static class NCardModelSetPatch {
 		[HarmonyPrefix]
 		public static bool Prefix(NCard __instance, ref CardModel ____model, CardModel value) {

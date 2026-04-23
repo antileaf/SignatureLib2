@@ -3,10 +3,10 @@ using MegaCrit.Sts2.Core.Models;
 using SignatureLib.Code.Cards;
 using SignatureLib.Code.Config;
 
-namespace SignatureLib.Code.Utils;
+namespace SignatureLib.Code;
 
-public abstract class SignatureLibHelper {
-	private static Logger Logger { get; } = new(nameof(SignatureLibHelper), LogType.Generic);
+public abstract class SignatureLib {
+	private static Logger Logger { get; } = new(nameof(SignatureLib), LogType.Generic);
 
 	public static bool CardHasSignature(CardModel card) {
 		if (card is AbstractSignatureCard signatureCard)

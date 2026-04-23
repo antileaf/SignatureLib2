@@ -7,7 +7,6 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using SignatureLib.Code.Extensions;
-using SignatureLib.Code.Utils;
 using Label = Godot.Label;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
@@ -24,14 +23,14 @@ public class InspectScreenOptions {
 	private bool _hideDescription = false;
 
 	public bool SignatureProperty {
-		get => this._currentCard != null && SignatureLibHelper.IsEnabled(this._currentCard.Id);
+		get => this._currentCard != null && SignatureLib.IsEnabled(this._currentCard.Id);
 		set {
 			if (this._currentCard == null)
 				return;
 
-			if (SignatureLibHelper.CardHasSignature(this._currentCard)) {
-				if (SignatureLibHelper.IsEnabled(this._currentCard.Id) != value) {
-					SignatureLibHelper.Enable(this._currentCard.Id, value);
+			if (SignatureLib.CardHasSignature(this._currentCard)) {
+				if (SignatureLib.IsEnabled(this._currentCard.Id) != value) {
+					SignatureLib.Enable(this._currentCard.Id, value);
 					Logger.Debug($"Now signature is {value}");
 					this.InvokeUpdateCardDisplayDeferred();
 				}
@@ -50,7 +49,7 @@ public class InspectScreenOptions {
 			if (this._hideDescription != value) {
 				this._hideDescription = value;
 
-				if (SignatureLibHelper.CardHasSignature(this._currentCard))
+				if (SignatureLib.CardHasSignature(this._currentCard))
 					this.InvokeUpdateCardDisplayDeferred();
 			}
 		}
@@ -135,8 +134,8 @@ public class InspectScreenOptions {
 
 		_currentCard = card;
 
-		if (card != null && SignatureLibHelper.CardHasSignature(card)) {
-			this.SignatureProperty = SignatureLibHelper.IsEnabled(card.Id);
+		if (card != null && SignatureLib.CardHasSignature(card)) {
+			this.SignatureProperty = SignatureLib.IsEnabled(card.Id);
 			this._signatureTickbox.SetTickedDeferred(this.SignatureProperty);
 			// this.HideDescriptionProperty = this._hideDescription;
 			// HideDescriptionProperty = false;

@@ -10,7 +10,6 @@ using MegaCrit.Sts2.Core.Nodes.Cards;
 using SignatureLib.Code.Config;
 using SignatureLib.Code.Extensions;
 using SignatureLib.Code.Interfaces;
-using SignatureLib.Code.Utils;
 using Color = Godot.Color;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
@@ -24,7 +23,7 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 
 	public virtual string SignaturePortraitPath =>
 		this.PortraitPath.Replace("/cards/", "/signature/")
-			.Replace("\\cards\\", "\\signature\\");
+			.Replace(@"\cards\", @"\signature\");
 
 	public Texture2D? SignaturePortrait => PreloadManager.Cache.GetTexture2D(this.SignaturePortraitPath);
 	public Texture2D SignatureTextBg => PreloadManager.Cache.GetTexture2D("desc_shadow.png".CardItemPath());
@@ -35,79 +34,7 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 	public virtual bool SignaturePredicate() => true;
 	public bool ShouldUseSignature() => this.HasSignature && this.SignaturePredicate();
 
-	private NCard? _nCard;
-	private Control? _signatureControl;
-	private TextureRect? _signatureTextureRect;
-	private TextureRect? _textShadow;
-	private MegaRichTextLabel? _description;
-
-	private Tween? _curTween = null;
-
-	private float SignatureTransparency => this._textShadow?.Modulate.A ?? 1f;
-
-	private bool _signatureHovered = false;
-	public bool SignatureHovered {
-		get => this._signatureHovered;
-		set {
-			if (!this.HasSignature)
-				return; // TODO: re-write in future
-
-			if (this._signatureHovered == value)
-				return;
-
-			this._signatureHovered = value;
-
-			if (!SignatureLibHelper.IsEnabled(this.Id)) {
-				Logger.Debug($"Signature of {this.Id.Entry} is disabled");
-				return;
-			}
-
-			if (this._alwaysHovered)
-				Logger.Debug("Tried to set SignatureHovered to " + value + " but _alwaysHovered is true");
-
-			Logger.VeryDebug("Signature hovered changed to " + value);
-
-			if (!this._alwaysHovered) {
-				this._curTween?.Kill();
-				if ((this._curTween = this._nCard?.CreateTween()) != null) {
-					this._curTween.SetParallel(true);
-
-					float targetAlpha = value ? 1f : 0f;
-					float duration = 0.3f * Mathf.Abs(targetAlpha - this.SignatureTransparency);
-
-					this._curTween.TweenProperty(this._textShadow,
-						"modulate:a",targetAlpha, duration);
-					this._curTween.TweenProperty(this._description,
-						"modulate:a", targetAlpha, duration);
-
-					Logger.VeryDebug("targetAlpha = " + targetAlpha + " duration = " + duration);
-				}
-			}
-		}
-	}
-
-	private bool _alwaysHovered = false;
-	public void AlwaysHovered(bool value) {
-		if (!this.HasSignature || !SignatureLibHelper.IsEnabled(this.Id))
-			return;
-
-		// if (this._alwaysHovered == value)
-		// 	return;
-
-		this._alwaysHovered = value;
-		this._curTween?.Kill();
-		this._curTween = null;
-
-		if (this._textShadow == null)
-			Logger.Info("textShadow is null");
-		if (this._description == null)
-			Logger.Info("description is null");
-
-		this._textShadow?.SetModulate(new Color(1f, 1f, 1f, value ? 1f : 0f));
-		this._description?.SetModulate(new Color(1f, 1f, 1f, value ? 1f : 0f));
-
-		this.SignatureHovered = value;
-	}
+	private HashSet<NCard> _nCards;
 
 	public virtual void OnReload(NCard card) {
 		Logger.Debug($"Card {this.Id.Entry} reloaded");
@@ -119,6 +46,7 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 		Traverse traverse = Traverse.Create(card);
 
 		this._signatureControl = new Control();
+		this._signatureControl.Name = "SignatureControl";
 		this._signatureControl.Size = new Vector2(HalfCardSize, HalfCardSize);
 		this._signatureControl.Position = new Vector2(-HalfCardSize / 2, -HalfCardSize / 2);
 		this._signatureControl.MouseFilter = Control.MouseFilterEnum.Ignore;
@@ -148,7 +76,7 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 
 			this._description = traverse.Field<MegaRichTextLabel>("_descriptionLabel").Value;
 
-			this.UpdateSignature(SignatureLibHelper.IsEnabled(this.Id));
+			this.UpdateSignature(SignatureLib.IsEnabled(this.Id));
 		}
 		else
 			Logger.Debug($"Card {this.Id.Entry} does not have Signature. Not modifying.");
