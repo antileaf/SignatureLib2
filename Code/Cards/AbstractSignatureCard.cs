@@ -19,8 +19,6 @@ public abstract class AbstractSignatureCard(int cost, CardType type, CardRarity 
 		CustomCardModel(cost, type, rarity, target), INCardModify {
 	private static Logger Logger { get; } = new(nameof(AbstractSignatureCard), LogType.Generic);
 
-	private const float HalfCardSize = 512;
-
 	public virtual string SignaturePortraitPath =>
 		this.PortraitPath.Replace("/cards/", "/signature/")
 			.Replace(@"\cards\", @"\signature\");

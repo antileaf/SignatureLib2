@@ -1,14 +1,19 @@
 using Godot;
+using HarmonyLib;
 using MegaCrit.Sts2.addons.mega_text;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
+using SignatureLib.Code.Extensions;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
 namespace SignatureLib.Code.Signature;
 
 public class NCardHelper {
 	private static Logger Logger { get; } = new(nameof(NCardHelper), LogType.Generic);
+
+	private const float HalfCardSize = 512;
 
 	private readonly NCard _nCard;
 	public ModelId? Id => this._nCard.Model?.Id ?? null;
@@ -62,7 +67,6 @@ public class NCardHelper {
 	}
 
 	private bool _alwaysHovered = false;
-
 	public bool AlwaysHovered {
 		get => this._alwaysHovered;
 		set {
@@ -92,5 +96,9 @@ public class NCardHelper {
 
 	public NCardHelper(NCard nCard) {
 		this._nCard = nCard;
+	}
+
+	public void OnReload() {
+		// TODO: move from AbstractSignatureCard.OnReload()
 	}
 }

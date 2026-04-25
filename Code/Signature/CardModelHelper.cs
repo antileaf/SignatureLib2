@@ -8,10 +8,6 @@ public class CardModelHelper {
 
 	private Func<CardModel, string> SignaturePortraitPath { get; }
 
-	private bool? _hasSignature;
-	public bool HasSignature => this._hasSignature ??= ResourceLoader.Exists(
-			this.SignaturePortraitPath.Invoke(this._card));
-
 	private Func<CardModel, bool> SignaturePredicate { get; }
 
 	public CardModelHelper(CardModel card, SignatureInfo info) {
