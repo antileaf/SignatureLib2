@@ -5,7 +5,9 @@ using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
+using SignatureLib.Code.Config;
 using SignatureLib.Code.Extensions;
+using SignatureLib.Code.Patches;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
 namespace SignatureLib.Code.Signature;
@@ -17,6 +19,7 @@ public class NCardHelper {
 
 	private readonly NCard _nCard;
 	public ModelId? Id => this._nCard.Model?.Id ?? null;
+	public CardModel? Model => this._nCard.Model;
 
 	private Control? _signatureControl;
 	private TextureRect? _signatureTextureRect;
@@ -99,6 +102,82 @@ public class NCardHelper {
 	}
 
 	public void OnReload() {
-		// TODO: move from AbstractSignatureCard.OnReload()
+		this._tween?.Kill();
+		this._tween = null;
+
+		if (this.Model == null) {
+			Logger.Warn("OnReload: Model == null");
+			return;
+		}
+
+		Traverse traverse = Traverse.Create(this._nCard);
+
+		this._signatureControl = new Control();
+		this._signatureControl.Name = "SignatureControl";
+		this._signatureControl.Size = new Vector2(HalfCardSize, HalfCardSize);
+		this._signatureControl.Position = new Vector2(-HalfCardSize / 2, -HalfCardSize / 2);
+		this._signatureControl.MouseFilter = Control.MouseFilterEnum.Ignore;
+
+		Control cardContainer = traverse.Property("Body").GetValue<Control>();
+		cardContainer.AddChildSafely(this._signatureControl);
+		cardContainer.MoveChildSafely(this._signatureControl,
+				traverse.Field<TextureRect>("_frame").Value.GetIndex() + 1);
+
+		// if (CardModelHelper.Get(this.Model) == null) {
+		// 	Logger.Warn($"OnReload: CardModelPatch.Helper[{this.Model.Id.Entry}] == null");
+		// 	return;
+		// }
+
+		this._signatureTextureRect = new TextureRect();
+		this._signatureTextureRect.Size = new Vector2(HalfCardSize, HalfCardSize);
+		this._signatureTextureRect.ExpandMode = TextureRect.ExpandModeEnum.FitHeight;
+		this._signatureTextureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+		this._signatureTextureRect.Texture = CardModelHelper.Get(this.Model).SignaturePortrait;
+		this._signatureTextureRect.MouseFilter = Control.MouseFilterEnum.Ignore;
+
+		this._textShadow = new TextureRect();
+		this._textShadow.Size = new Vector2(HalfCardSize, HalfCardSize);
+		this._textShadow.ExpandMode = TextureRect.ExpandModeEnum.FitHeight;
+		this._textShadow.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+		this._textShadow.Texture = CardModelHelper.Get(this.Model).SignatureTextBg;
+		this._textShadow.MouseFilter = Control.MouseFilterEnum.Ignore;
+
+		this._signatureControl.AddChildSafely(this._signatureTextureRect);
+		this._signatureControl.AddChildSafely(this._textShadow);
+
+		this._description = traverse.Field<MegaRichTextLabel>("_descriptionLabel").Value;
+
+		TextureRect frame = traverse.Field<TextureRect>("_frame").Value;
+		TextureRect portraitBorder = traverse.Field<TextureRect>("_portraitBorder").Value;
+		TextureRect titleBanner = traverse.Field<TextureRect>("_banner").Value;
+		TextureRect portrait = traverse.Field<TextureRect>("_portrait").Value;
+		NinePatchRect type = traverse.Field<NinePatchRect>("_typePlaque").Value;
+
+		if (this._description is null)
+			Logger.Warn("description is null");
+
+		if (CardModelHelper.Get(this.Model).Enabled) {
+			frame.Hide();
+			portraitBorder.Hide();
+			titleBanner.Hide();
+			portrait.Hide();
+			type.SetPosition(new Vector2(type.Position.X, 176.0f));
+			this._signatureControl?.Show();
+			this._textShadow?.SetModulate(new Color(1f, 1f, 1f, 0f));
+			this._description?.SetModulate(new Color(1f, 1f, 1f, 0f));
+		}
+		else {
+			frame.Show();
+			portraitBorder.Show();
+			titleBanner.Show();
+			portrait.Show();
+			type.SetPosition(new Vector2(type.Position.X, 1f));
+			this._signatureControl?.Hide();
+			this._description?.SetModulate(new Color(1f, 1f, 1f, 1f));
+		}
+
+		// Logger.Info("Hello?");
+
+		this.AlwaysHovered = SignatureLibConfig.AlwaysShowDescription;
 	}
 }

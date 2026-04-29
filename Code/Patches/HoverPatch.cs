@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Pooling;
 using SignatureLib.Code.Cards;
 using SignatureLib.Code.Config;
+using SignatureLib.Code.Utils;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
 namespace SignatureLib.Code.Patches;
@@ -23,16 +24,26 @@ public class HoverPatch {
 			__instance.Hitbox.MouseEntered += delegate {
 				// Logger.VeryDebug("Mouse Entered");
 
-				if (__instance.CardModel is AbstractSignatureCard signatureCard &&
-						!SignatureLibConfig.AlwaysShowDescription) {
-					signatureCard.SignatureHovered = true;
+				if (__instance is { CardNode: not null, CardModel: not null } &&
+					    SignatureLibHelper.IsRegistered(__instance.CardModel.Id) &&
+					    !SignatureLibConfig.AlwaysShowDescription) {
+					if (NCardPatch.Helper[__instance.CardNode] != null) {
+						// Logger.Warn("NCardHelper is null for card " + __instance.CardModel.Id.Entry);
+						NCardPatch.Helper[__instance.CardNode].SignatureHovered = true;
+					}
 				}
 			};
 
 			__instance.Hitbox.MouseExited += delegate {
-				if (__instance.CardModel is AbstractSignatureCard signatureCard &&
-						!SignatureLibConfig.AlwaysShowDescription) {
-					signatureCard.SignatureHovered = false;
+				// Logger.VeryDebug("Mouse Exited");
+
+				if (__instance is { CardNode: not null, CardModel: not null } &&
+					    SignatureLibHelper.IsRegistered(__instance.CardModel.Id) &&
+					    !SignatureLibConfig.AlwaysShowDescription) {
+					if (NCardPatch.Helper[__instance.CardNode] != null) {
+						// Logger.Warn("NCardHelper is null for card " + __instance.CardModel.Id.Entry);
+						NCardPatch.Helper[__instance.CardNode].SignatureHovered = false;
+					}
 				}
 			};
 		}

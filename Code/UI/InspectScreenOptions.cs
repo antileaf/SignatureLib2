@@ -1,12 +1,16 @@
 using Godot;
+using HarmonyLib;
 using MegaCrit.Sts2.addons.mega_text;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using SignatureLib.Code.Extensions;
+using SignatureLib.Code.Patches;
+using SignatureLib.Code.Utils;
 using Label = Godot.Label;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
 
@@ -28,11 +32,21 @@ public class InspectScreenOptions {
 			if (this._currentCard == null)
 				return;
 
-			if (SignatureLib.CardHasSignature(this._currentCard)) {
+			if (SignatureLibHelper.IsRegistered(this._currentCard.Id)) {
 				if (SignatureLib.IsEnabled(this._currentCard.Id) != value) {
 					SignatureLib.Enable(this._currentCard.Id, value);
 					Logger.Debug($"Now signature is {value}");
 					this.InvokeUpdateCardDisplayDeferred();
+
+					// NCard? current = AccessTools.DeclaredField(typeof(NInspectCardScreen), "_card")
+					// 		.GetValue(this._inspectCardScreen) as NCard;
+					// current?.CallDeferred("Reload", null);
+
+					// foreach (NCard nCard in CardModelPatch.NCards[this._currentCard]) {
+					// 	if (nCard != current && nCard.IsNodeReady())
+					// 		AccessTools.Method(typeof(NCard), "Reload")
+					// 				.Invoke(nCard, null);
+					// }
 				}
 			}
 			else
@@ -49,7 +63,7 @@ public class InspectScreenOptions {
 			if (this._hideDescription != value) {
 				this._hideDescription = value;
 
-				if (SignatureLib.CardHasSignature(this._currentCard))
+				if (SignatureLibHelper.IsRegistered(this._currentCard.Id))
 					this.InvokeUpdateCardDisplayDeferred();
 			}
 		}
@@ -134,7 +148,7 @@ public class InspectScreenOptions {
 
 		_currentCard = card;
 
-		if (card != null && SignatureLib.CardHasSignature(card)) {
+		if (card != null && SignatureLibHelper.IsRegistered(card.Id)) {
 			this.SignatureProperty = SignatureLib.IsEnabled(card.Id);
 			this._signatureTickbox.SetTickedDeferred(this.SignatureProperty);
 			// this.HideDescriptionProperty = this._hideDescription;

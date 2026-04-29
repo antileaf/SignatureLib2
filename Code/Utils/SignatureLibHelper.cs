@@ -3,12 +3,12 @@ using MegaCrit.Sts2.Core.Models;
 
 namespace SignatureLib.Code.Utils;
 
-public abstract class SignatureHelper {
-	private static Logger Logger { get; } = new(nameof(SignatureHelper), LogType.Generic);
+public abstract class SignatureLibHelper {
+	private static Logger Logger { get; } = new(nameof(SignatureLibHelper), LogType.Generic);
 
 	private static Dictionary<ModelId, SignatureInfo> _registered = new();
 
-	public static void register(ModelId id, SignatureInfo info) {
+	public static void Register(ModelId id, SignatureInfo info) {
 		if (_registered.ContainsKey(id))
 			Logger.Warn($"Multiple registration of {id.Entry} detected");
 		else

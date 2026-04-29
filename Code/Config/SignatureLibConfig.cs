@@ -11,7 +11,7 @@ public class SignatureLibConfig : SimpleModConfig {
 	private static Logger Logger { get; set; } = new(nameof(SignatureLibConfig), LogType.Generic);
 
 	[ConfigIgnore]
-	public static Dictionary<string, bool> Enabled { get; set; } = new();
+	private static Dictionary<string, bool> Enabled { get; set; } = new();
 
 	[ConfigHideInUI]
 	public static string SerializedEnabled { get; set; }
@@ -41,6 +41,9 @@ public class SignatureLibConfig : SimpleModConfig {
 	}
 
 	public static bool? GetEnabled(string cardId) {
-		return Enabled.ContainsKey(cardId) ? Enabled[cardId] : null;
+		if (!Enabled.ContainsKey(cardId))
+			Logger.Warn($"GetEnabled: No entry for {cardId} found in Enabled dictionary");
+
+		return Enabled.TryGetValue(cardId, out var value) ? value : null;
 	}
 }

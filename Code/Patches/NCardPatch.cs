@@ -8,7 +8,6 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Pooling;
 using SignatureLib.Code.Extensions;
-using SignatureLib.Code.Interfaces;
 using SignatureLib.Code.Signature;
 using SignatureLib.Code.Utils;
 using Logger = MegaCrit.Sts2.Core.Logging.Logger;
@@ -24,15 +23,15 @@ public class NCardPatch {
 	[HarmonyPatch(typeof(NCard),"Reload")]
 	public static class ReloadPatch {
 		[HarmonyPostfix]
-		public static void Postfix(NCard inst) {
-			if (!inst.IsNodeReady() || inst.Model == null)
+		public static void Postfix(NCard __instance) {
+			if (!__instance.IsNodeReady() || __instance.Model == null)
 				return;
 
-			if (SignatureHelper.IsRegistered(inst.Model.Id)) {
-				Logger.Debug($"Running Reload for card {inst.Model.Id}");
+			if (SignatureLibHelper.IsRegistered(__instance.Model.Id)) {
+				Logger.Debug($"Running Reload for card {__instance.Model.Id}");
 
-				Helper[inst] ??= new NCardHelper(inst);
-				Helper[inst]?.OnReload();
+				Helper[__instance] ??= new NCardHelper(__instance);
+				Helper[__instance].OnReload();
 			}
 		}
 	}
